@@ -9,6 +9,8 @@ import java.util.Collection;
 
 public interface UserService {
 
+    User getUserObject(long id);
+
     UserDto getUser(long id);
 
     UserDto addUser(NewUserRequest newUserRequest);

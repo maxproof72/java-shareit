@@ -18,6 +18,11 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
+    public User getUserObject(long id) {
+        return userRepository.getUserById(id);
+    }
+
+    @Override
     public UserDto getUser(long id) {
         log.info("Запрос данных пользователя {}", id);
         return UserMapper.toDto(userRepository.getUserById(id));

@@ -1,6 +1,7 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.item;
 
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
@@ -9,8 +10,9 @@ import ru.practicum.shareit.user.User;
  */
 
 @Data
+@NoArgsConstructor
 public class Item {
-    Long id;
+    long id;
     String name;
     String description;
     Boolean available;

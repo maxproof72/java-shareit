@@ -1,18 +1,17 @@
-package ru.practicum.shareit.user;
+package ru.practicum.shareit.item.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-/**
- * TODO Sprint add-controllers.
- */
-
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
-    long id;
+public class UpdateItemRequest {
+
+    Long id;
     String name;
-    String email;
+    String description;
+    Boolean available;
+    Long ownerId;
 }
