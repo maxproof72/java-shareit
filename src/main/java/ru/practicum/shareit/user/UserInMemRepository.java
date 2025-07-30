@@ -23,21 +23,15 @@ public class UserInMemRepository implements UserRepository {
                 .mapToLong(User::getId)
                 .findAny()
                 .orElse(0);
-        if (id != 0 && id != ownId) {
-            final String msg = "Email " + email + " уже используется";
-            log.error(msg);
-            throw new DuplicatedDataException(msg);
-        }
+        if (id != 0 && id != ownId)
+            throw new DuplicatedDataException("Email " + email + " уже используется");
     }
 
     @Override
     public User getUserById(long id) {
         User user = users.get(id);
-        if (user == null) {
-            final String msg = "Пользователь с id=" + id + " не найден";
-            log.error(msg);
-            throw new NotFoundException("msg");
-        }
+        if (user == null)
+            throw new NotFoundException("Пользователь с id=" + id + " не найден");
         log.info("Возвращается информация о пользователе {}", user);
         return user;
     }

@@ -20,17 +20,11 @@ public class ItemInMemRepository implements ItemRepository {
     @Override
     public Item getItem(long itemId, long userId) {
 
-        Item item = items.get(id);
-        if (item == null) {
-            final String msg = "Предмет с id=" + id + " не найден";
-            log.error(msg);
-            throw new NotFoundException("msg");
-        }
-        if (item.getOwner().getId() != userId) {
-            final String msg = "Предмет с id=" + id + " принадлежит другому пользователю";
-            log.error(msg);
-            throw new NotFoundException("msg");
-        }
+        Item item = items.get(itemId);
+        if (item == null)
+            throw new NotFoundException("Предмет с id=" + itemId + " не найден");
+        if (item.getOwner().getId() != userId)
+            throw new NotFoundException("Предмет с id=" + itemId + " не принадлежит пользователю с id=" + userId);
         log.info("Возвращается информация о предмете {}", item);
         return item;
     }
