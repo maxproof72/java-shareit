@@ -1,20 +1,23 @@
 package ru.practicum.shareit.user;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.DuplicatedDataException;
 import ru.practicum.shareit.exception.NotFoundException;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 
-@Repository
+@Component
 @Slf4j
 public class UserInMemRepository implements UserRepository {
 
     private final Map<Long, User> users = new HashMap<>();
     private long id;
 
-    private void checkDuplicatedEmail(String email, long ownId) throws DuplicatedDataException {
+    private void checkDuplicatedEmail(String email, long ownId) {
         long id = users.values().stream()
                 .filter(u -> u.getEmail().equalsIgnoreCase(email))
                 .mapToLong(User::getId)
@@ -28,7 +31,7 @@ public class UserInMemRepository implements UserRepository {
     }
 
     @Override
-    public User getUserById(long id) throws NotFoundException {
+    public User getUserById(long id) {
         User user = users.get(id);
         if (user == null) {
             final String msg = "Пользователь с id=" + id + " не найден";
@@ -40,7 +43,7 @@ public class UserInMemRepository implements UserRepository {
     }
 
     @Override
-    public User addUser(User user) throws DuplicatedDataException {
+    public User addUser(User user) {
 
         checkDuplicatedEmail(user.getEmail(), 0);
         user.setId(++id);
@@ -50,7 +53,7 @@ public class UserInMemRepository implements UserRepository {
     }
 
     @Override
-    public User updateUser(User user) throws NotFoundException, DuplicatedDataException {
+    public User updateUser(User user) {
 
         User existingUser = getUserById(user.getId());
         if (user.getName() != null)

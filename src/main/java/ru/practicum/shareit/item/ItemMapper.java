@@ -1,10 +1,12 @@
 package ru.practicum.shareit.item;
 
 import lombok.NonNull;
+import lombok.experimental.UtilityClass;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.NewItemRequest;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
 
+@UtilityClass
 public class ItemMapper {
 
     public static ItemDto toDto(@NonNull Item item) {

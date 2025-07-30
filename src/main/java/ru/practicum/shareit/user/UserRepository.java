@@ -13,7 +13,7 @@ public interface UserRepository {
      * @return Пользователь с указанным id
      * @throws NotFoundException если пользователь с указанным id не существует
      */
-    User getUserById(long id) throws NotFoundException;
+    User getUserById(long id);
 
     /**
      * Добавляет нового пользователя в хранилище
@@ -21,7 +21,7 @@ public interface UserRepository {
      * @return Новый пользователь с установленным <b>id</b>
      * @throws DuplicatedDataException если пользователь с указанным email существует
      */
-    User addUser(User user) throws DuplicatedDataException;
+    User addUser(User user);
 
     /**
      * Обновляет пользователя
@@ -30,7 +30,7 @@ public interface UserRepository {
      * @throws NotFoundException если пользователь с указанным id не найден
      * @throws DuplicatedDataException если обновленное значение email уже используется
      */
-    User updateUser(User user) throws NotFoundException, DuplicatedDataException;
+    User updateUser(User user);
 
     /**
      * Возвращает список всех пользователей

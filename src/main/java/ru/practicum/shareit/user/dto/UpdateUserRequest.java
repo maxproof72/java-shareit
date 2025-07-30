@@ -9,8 +9,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdateUserRequest {
-    String name;
+
+    private String name;
 
     @Email(message = "Электронная почта должна быть корректной")
-    String email;
+    private String email;
 }

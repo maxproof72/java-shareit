@@ -1,7 +1,7 @@
 package ru.practicum.shareit.item;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Component;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.User;
 
@@ -9,7 +9,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@Repository
+@Component
 @Slf4j
 public class ItemInMemRepository implements ItemRepository {
 
@@ -18,7 +18,7 @@ public class ItemInMemRepository implements ItemRepository {
 
 
     @Override
-    public Item getItem(long itemId, long userId) throws NotFoundException {
+    public Item getItem(long itemId, long userId) {
 
         Item item = items.get(id);
         if (item == null) {
@@ -45,7 +45,7 @@ public class ItemInMemRepository implements ItemRepository {
     }
 
     @Override
-    public Item updateItem(Item newItemData) throws NotFoundException {
+    public Item updateItem(Item newItemData) {
 
         Item existingItem = getItem(newItemData.getId(), newItemData.getOwner().getId());
         if (newItemData.getName() != null) {

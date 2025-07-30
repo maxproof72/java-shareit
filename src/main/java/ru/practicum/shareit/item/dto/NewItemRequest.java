@@ -12,13 +12,13 @@ import lombok.NoArgsConstructor;
 public class NewItemRequest {
 
     @NotBlank(message = "Название предмета не может быть пустым")
-    String name;
+    private String name;
 
     @NotBlank(message = "Описание предмета не может быть пустым")
-    String description;
+    private String description;
 
     @NotNull(message = "Не указана доступность предмета")
-    Boolean available;
+    private Boolean available;
 
-    Long ownerId;
+    private Long ownerId;
 }

@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 public class NewUserRequest {
 
     @NotBlank(message = "Имя не может быть пустым")
-    String name;
+    private String name;
 
     @Email(message = "Электронная почта должна быть корректной")
     @NotBlank(message = "Электронная почта не может быть пустой")
-    String email;
+    private String email;
 }

@@ -15,7 +15,7 @@ public interface ItemRepository {
      * @throws NotFoundException если предмет с указанным id не существует
      * или принадлежит другому пользователю
      */
-    Item getItem(long itemId, long userId) throws NotFoundException;
+    Item getItem(long itemId, long userId);
 
     /**
      * Добавляет новый предмет в хранилище
@@ -31,7 +31,7 @@ public interface ItemRepository {
      * @throws NotFoundException если предмет с указанным id не найден
      * или предмет принадлежит другому пользователю
      */
-    Item updateItem(Item newItemData) throws NotFoundException;
+    Item updateItem(Item newItemData);
 
     /**
      * Возвращает перечень предметов, принадлежащих указанному пользователю

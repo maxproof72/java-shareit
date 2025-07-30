@@ -9,9 +9,9 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UpdateItemRequest {
 
-    Long id;
-    String name;
-    String description;
-    Boolean available;
-    Long ownerId;
+    private Long id;
+    private String name;
+    private String description;
+    private Boolean available;
+    private Long ownerId;
 }
