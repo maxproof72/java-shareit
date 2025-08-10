@@ -1,5 +1,6 @@
 package ru.practicum.shareit.request;
 
+import jakarta.persistence.*;
 import lombok.Data;
 import ru.practicum.shareit.user.User;
 
@@ -10,9 +11,16 @@ import java.time.LocalDate;
  */
 
 @Data
+@Entity(name = "requests")
 public class ItemRequest {
+
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
+
     String description;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     User requestor;
+
     LocalDate created;
 }

@@ -1,8 +1,11 @@
 package ru.practicum.shareit.item;
 
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.NewItemRequest;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
@@ -10,65 +13,69 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.util.Collection;
-import java.util.List;
 
-@Service
 @Slf4j
+@Qualifier("ItemDbService")
+@Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
 
-
     @Override
     public ItemDto getItem(long itemId, long userId) {
-        log.info("Запрос на информацию о предмете {} пользователя {}", itemId, userId);
-        return ItemMapper.toDto(itemRepository.getItem(itemId, userId));
+        Item item = itemRepository.findByIdAndOwnerId(itemId, userId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Не найден предмет id=%d пользователя id=%d".formatted(itemId, userId)));
+        log.info("Возвращается информация о предмете {}", item);
+        return ItemMapper.toDto(item);
     }
 
     @Override
     public ItemDto addItem(NewItemRequest newItemRequest) {
 
-        log.info("Запрос на добавление предмета {}", newItemRequest);
-        User user = userRepository.getUserById(newItemRequest.getOwnerId());
-        Item newItem = ItemMapper.toItem(newItemRequest);
-        newItem.setOwner(user);
-        newItem = itemRepository.addItem(newItem);
-        return ItemMapper.toDto(newItem);
+        Item item = ItemMapper.toItem(newItemRequest);
+        User user = userRepository.findById(newItemRequest.getOwnerId())
+                .orElseThrow(() -> new NotFoundException(
+                        "Пользователь id=%d не найден".formatted(newItemRequest.getOwnerId())));
+        item.setOwner(user);
+        item = itemRepository.save(item);
+        log.info("Добавлен предмет {}", item);
+        return ItemMapper.toDto(item);
     }
 
     @Override
     public ItemDto updateItem(UpdateItemRequest updateItemRequest) {
-
-        log.info("Запрос на обновление предмета {}", updateItemRequest);
-        User user = userRepository.getUserById(updateItemRequest.getOwnerId());
-        Item newItemData = ItemMapper.toItem(updateItemRequest);
-        newItemData.setOwner(user);
-        newItemData = itemRepository.updateItem(newItemData);
-        return ItemMapper.toDto(newItemData);
+        Item item = itemRepository.findByIdAndOwnerId(updateItemRequest.getId(), updateItemRequest.getOwnerId())
+                .orElseThrow(() -> new NotFoundException(
+                        "Не найден предмет id=%d пользователя id=%d".formatted(updateItemRequest.getId(), updateItemRequest.getOwnerId())));
+        if (updateItemRequest.getName() != null)
+            item.setName(updateItemRequest.getName());
+        if (updateItemRequest.getDescription() != null)
+            item.setDescription(updateItemRequest.getDescription());
+        if (updateItemRequest.getAvailable() != null)
+            item.setAvailable(updateItemRequest.getAvailable());
+        item = itemRepository.save(item);
+        log.info("Обновлен предмет {}", item);
+        return ItemMapper.toDto(item);
     }
 
     @Override
     public Collection<ItemDto> getItemsOfUser(long userId) {
-
-        log.info("Запрос на список предметов пользователя {}", userId);
-        User user = userRepository.getUserById(userId);
-        return itemRepository.getItemsOfUser(user).stream()
-                .map(ItemMapper::toDto)
-                .toList();
+        var it = itemRepository.findItemsByOwnerId(userId);
+        log.info("Запрос предметов пользователя с id={} вернул {} записей", userId, it.size());
+        return it.stream().map(ItemMapper::toDto).toList();
     }
 
     @Override
-    public Collection<ItemDto> searchItems(long userId, String searchPattern) {
+    public Collection<ItemDto> searchItems(long userId, @NonNull String searchPattern) {
 
-        log.info("Запрос на поиск предметов пользователя {} по образцу {}", userId, searchPattern);
-        User user = userRepository.getUserById(userId);
-        if (searchPattern.isEmpty()) {
-            return List.of();
-        }
-        return itemRepository.searchItems(user, searchPattern).stream()
-                .map(ItemMapper::toDto)
-                .toList();
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException(
+                        "Пользователь id=%d не найден".formatted(userId)));
+        var it = itemRepository.findItemsByOwnerIdAndPattern(user, searchPattern.toLowerCase());
+        log.info("Поиск предметов {} пользователя с id={} вернул {} записей", searchPattern, userId, it.size());
+        return it.stream().map(ItemMapper::toDto).toList();
     }
 }

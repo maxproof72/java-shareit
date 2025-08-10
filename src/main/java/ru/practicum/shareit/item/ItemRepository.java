@@ -1,50 +1,42 @@
 package ru.practicum.shareit.item;
 
-import ru.practicum.shareit.exception.NotFoundException;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.user.User;
 
-import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
-public interface ItemRepository {
-
-    /**
-     * Возвращает предмет по его <b>id</b>
-     * @param itemId Идентификатор предмета
-     * @param userId Идентификатор пользователя - хозяина предмета
-     * @return Предмет с указанным id
-     * @throws NotFoundException если предмет с указанным id не существует
-     * или принадлежит другому пользователю
-     */
-    Item getItem(long itemId, long userId);
+@Repository
+public interface ItemRepository extends JpaRepository<Item, Long> {
 
     /**
-     * Добавляет новый предмет в хранилище
-     * @param item Новый предмет
-     * @return Новый предмет с установленным <b>id</b>
+     * Поиск предметов заданного пользователя
+     * @param id Идентификатор пользователя - хозяина предметов
+     * @return Список предметов
      */
-    Item addItem(Item item);
+    List<Item> findItemsByOwnerId(long id);
 
     /**
-     * Обновляет предмет
-     * @param newItemData Обновление данных предмета
-     * @return Обновленный предмет
-     * @throws NotFoundException если предмет с указанным id не найден
-     * или предмет принадлежит другому пользователю
+     * Выборка всех предметов пользователя <ref>owner_if</ref> с именем или описанием,
+     * содержащим заданный текст
+     * @param owner Пользователь
+     * @param value Текст поиска (!в нижнем регистре)
+     * @return Список предметов
      */
-    Item updateItem(Item newItemData);
+    @Query("select it from items as it " +
+            "where it.owner = :owner and " +
+            "it.available and " +
+            "  (lower(it.name) like %:value% or" +
+            "   lower(it.description) like %:value%)")
+    List<Item> findItemsByOwnerIdAndPattern(User owner, String value);
 
     /**
-     * Возвращает перечень предметов, принадлежащих указанному пользователю
-     * @param user Пользователь
-     * @return Перечень предметов
+     * Производит поиск предмета с заданным id пользователя id
+     * @param id Идентификатор предмета
+     * @param ownerId Идентификатор пользователя
+     * @return Опцион предмета
      */
-    Collection<Item> getItemsOfUser(User user);
-
-    /**
-     * Производит поиск предметов пользователя user по образцу searchPattern в имени или описании
-     * @param user Пользователь
-     * @param searchPattern Образец поиска
-     * @return Перечень предметов
-     */
-    Collection<Item> searchItems(User user, String searchPattern);
+    Optional<Item> findByIdAndOwnerId(Long id, Long ownerId);
 }

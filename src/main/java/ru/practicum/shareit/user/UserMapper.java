@@ -15,17 +15,9 @@ public class UserMapper {
 
     public static User toUser(@NonNull NewUserRequest newUserRequest) {
         return new User(
-                0,
+                null,
                 newUserRequest.getName(),
                 newUserRequest.getEmail()
-        );
-    }
-
-    public static User toUser(@NonNull UpdateUserRequest updateUserRequest) {
-        return new User(
-                0,
-                updateUserRequest.getName(),
-                updateUserRequest.getEmail()
         );
     }
 }

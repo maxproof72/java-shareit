@@ -14,21 +14,12 @@ public class ItemMapper {
              item.getId(),
                 item.getName(),
                 item.getDescription(),
-                item.getAvailable(),
-            (item.getRequest() != null) ? item.getRequest().getId() : null);
+                item.isAvailable());
+//            (item.getRequest() != null) ? item.getRequest().getId() : null);
     }
 
     public static Item toItem(@NonNull NewItemRequest itemRequest) {
         Item item = new Item();
-        item.setName(itemRequest.getName());
-        item.setDescription(itemRequest.getDescription());
-        item.setAvailable(itemRequest.getAvailable());
-        return item;
-    }
-
-    public static Item toItem(@NonNull UpdateItemRequest itemRequest) {
-        Item item = new Item();
-        item.setId(itemRequest.getId());
         item.setName(itemRequest.getName());
         item.setDescription(itemRequest.getDescription());
         item.setAvailable(itemRequest.getAvailable());
