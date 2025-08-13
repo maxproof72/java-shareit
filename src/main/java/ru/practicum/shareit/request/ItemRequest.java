@@ -20,7 +20,7 @@ public class ItemRequest {
     String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    User requestor_id;
+    User requestor;
 
     LocalDateTime created;
 }

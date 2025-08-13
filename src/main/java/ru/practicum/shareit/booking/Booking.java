@@ -19,10 +19,10 @@ public class Booking {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
-    @Column(name="booking_start")
+    @Column(name = "booking_start")
     LocalDateTime start;
 
-    @Column(name="booking_end")
+    @Column(name = "booking_end")
     LocalDateTime end;
 
     @ManyToOne(fetch = FetchType.LAZY)
