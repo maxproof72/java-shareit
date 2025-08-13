@@ -3,10 +3,12 @@ package ru.practicum.shareit.item;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.shareit.comments.dto.CommentDto;
+import ru.practicum.shareit.comments.dto.NewCommentRequest;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemWithCommentsDto;
 import ru.practicum.shareit.item.dto.NewItemRequest;
 import ru.practicum.shareit.item.dto.UpdateItemRequest;
 
@@ -18,7 +20,6 @@ import java.util.Collection;
 @RequestMapping("/items")
 public class ItemController {
 
-    @Qualifier("ItemDbService")
     private final ItemService itemService;
 
     @PostMapping
@@ -40,8 +41,8 @@ public class ItemController {
     }
 
     @GetMapping("/{itemId}")
-    public ItemDto getItem(@NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
-                              @NotNull @PathVariable("itemId") long itemId) {
+    public ItemWithCommentsDto getItem(@NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
+                                       @NotNull @PathVariable("itemId") long itemId) {
         return itemService.getItem(itemId, userId);
     }
 
@@ -54,5 +55,14 @@ public class ItemController {
     public Collection<ItemDto> searchItems(@NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
                                            @RequestParam(name = "text") String searchPattern) {
         return itemService.searchItems(userId, searchPattern);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentDto addComment(@NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
+                                 @Valid @RequestBody NewCommentRequest commentRequest,
+                                 @NotNull @PathVariable("itemId") long itemId) {
+        commentRequest.setUserId(userId);
+        commentRequest.setItemId(itemId);
+        return itemService.addComment(commentRequest);
     }
 }

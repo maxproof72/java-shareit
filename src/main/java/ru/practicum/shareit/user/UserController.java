@@ -2,7 +2,6 @@ package ru.practicum.shareit.user;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.shareit.user.dto.NewUserRequest;
@@ -17,7 +16,6 @@ import java.util.Collection;
 @RequestMapping("/users")
 public class UserController {
 
-    @Qualifier("UserDbService")
     private final UserService userService;
 
     @GetMapping

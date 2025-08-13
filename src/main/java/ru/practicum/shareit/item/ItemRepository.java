@@ -24,6 +24,9 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
      * @param owner Пользователь
      * @param value Текст поиска (!в нижнем регистре)
      * @return Список предметов
+     * @apiNote Согласно уточнению наставника (смотри
+     * <a href="https://app.pachca.com/chats/15717858?thread_message_id=573496296&message=573496296&sidebar_message=573954448">комментарий</a>),
+     * искать нужно только его вещи. Для меня это абсолютно непонятно.
      */
     @Query("select it from items as it " +
             "where it.owner = :owner and " +

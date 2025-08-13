@@ -9,7 +9,7 @@ import ru.practicum.shareit.booking.dto.BookingRequestState;
 import ru.practicum.shareit.booking.dto.BookingUpdateRequest;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
 
-import java.util.List;
+import java.util.Collection;
 
 
 @RestController
@@ -41,13 +41,13 @@ public class BookingController {
     }
 
     @GetMapping()
-    public List<BookingDto> getUserBookingsOfState(@NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
-                                                   @RequestParam(required = false, defaultValue = "ALL") BookingRequestState state) {
+    public Collection<BookingDto> getUserBookingsOfState(@NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
+                                                         @RequestParam(required = false, defaultValue = "ALL") BookingRequestState state) {
         return bookingService.getUserBookingsOfState(userId, state);
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getItemBookingsOfState(@NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
+    public Collection<BookingDto> getItemBookingsOfState(@NotNull @RequestHeader(name = "X-Sharer-User-Id") long userId,
                                                    @RequestParam(required = false, defaultValue = "ALL") BookingRequestState state) {
         return bookingService.getItemBookingsOfState(userId, state);
     }

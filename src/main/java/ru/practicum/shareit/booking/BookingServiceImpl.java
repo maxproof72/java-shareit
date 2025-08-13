@@ -15,6 +15,7 @@ import ru.practicum.shareit.user.User;
 import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 
 @Slf4j
@@ -42,7 +43,7 @@ public class BookingServiceImpl implements BookingService {
         booking.setItem(item);
         booking.setBooker(user);
         booking = bookingRepository.save(booking);
-        log.debug("Добавлено бронирование {}", booking);
+        log.info("Добавлено бронирование {}", booking);
         return BookingMapper.toDto(booking);
     }
 
@@ -58,7 +59,7 @@ public class BookingServiceImpl implements BookingService {
                             .formatted(updateRequest.getBookingId(), ownerId));
         booking.setStatus(updateRequest.isApproved() ? BookingStatus.APPROVED : BookingStatus.REJECTED);
         booking = bookingRepository.save(booking);
-        log.debug("Успешное обновление статуса бронирования {}", booking);
+        log.info("Успешное обновление статуса бронирования {}", booking);
         return BookingMapper.toDto(booking);
     }
 
@@ -71,12 +72,12 @@ public class BookingServiceImpl implements BookingService {
         if (booking.getItem().getOwner().getId() != userId && booking.getBooker().getId() != userId)
             throw new ForbiddenException("Пользователю id=%d запрещен доступ к бронированию id=%d"
                     .formatted(userId, bookingId));
-        log.debug("Успешный поиск бронирования {}", booking);
+        log.info("Успешный поиск бронирования {}", booking);
         return BookingMapper.toDto(booking);
     }
 
     @Override
-    public List<BookingDto> getUserBookingsOfState(long userId, BookingRequestState state) {
+    public Collection<BookingDto> getUserBookingsOfState(long userId, BookingRequestState state) {
 
         if (!userRepository.existsById(userId))
                 throw new NotFoundException("Пользователь id=%d не найден".formatted(userId));
@@ -91,12 +92,12 @@ public class BookingServiceImpl implements BookingService {
                 case WAITING ->
                         bookingRepository.findAllByBookerIdAndStatusOrderByStart(userId, BookingStatus.WAITING);
             };
-        log.debug("Запрос {} бронирований вернул {} записей", state, bs.size());
+        log.info("Запрос {} бронирований вернул {} записей", state, bs.size());
         return bs.stream().map(BookingMapper::toDto).toList();
     }
 
     @Override
-    public List<BookingDto> getItemBookingsOfState(long userId, BookingRequestState state) {
+    public Collection<BookingDto> getItemBookingsOfState(long userId, BookingRequestState state) {
         if (!userRepository.existsById(userId))
             throw new NotFoundException("Пользователь id=%d не найден".formatted(userId));
         List<Booking> bs =
@@ -113,7 +114,7 @@ public class BookingServiceImpl implements BookingService {
                     case WAITING ->
                             bookingRepository.findAllByItemOwnerIdAndStatus(userId, BookingStatus.WAITING);
                 };
-        log.debug("Запрос {} бронирований вещей пользователя {} вернул {} записей", state, userId, bs.size());
+        log.info("Запрос {} бронирований вещей пользователя {} вернул {} записей", state, userId, bs.size());
         return bs.stream().map(BookingMapper::toDto).toList();
     }
 }

@@ -2,7 +2,6 @@ package ru.practicum.shareit.user;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.NewUserRequest;
@@ -12,7 +11,6 @@ import ru.practicum.shareit.user.dto.UserDto;
 import java.util.Collection;
 
 @Slf4j
-@Qualifier("UserDbService")
 @Service
 @AllArgsConstructor
 public class UserServiceImpl implements UserService {

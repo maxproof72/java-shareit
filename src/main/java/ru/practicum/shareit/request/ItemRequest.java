@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import ru.practicum.shareit.user.User;
 
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 /**
  * TODO Sprint add-item-requests.
@@ -20,7 +20,7 @@ public class ItemRequest {
     String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    User requestor;
+    User requestor_id;
 
-    LocalDate created;
+    LocalDateTime created;
 }
