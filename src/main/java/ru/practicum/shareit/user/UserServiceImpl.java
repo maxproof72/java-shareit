@@ -1,56 +1,80 @@
 package ru.practicum.shareit.user;
 
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.NewUserRequest;
 import ru.practicum.shareit.user.dto.UpdateUserRequest;
 import ru.practicum.shareit.user.dto.UserDto;
 
 import java.util.Collection;
-import java.util.stream.Collectors;
 
-@Service
 @Slf4j
-@RequiredArgsConstructor
+@Service
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
-    private final UserRepository userRepository;
+    private final UserRepository userDbRepository;
 
     @Override
     public UserDto getUser(long id) {
-        log.info("Запрос данных пользователя {}", id);
-        return UserMapper.toDto(userRepository.getUserById(id));
+
+        var user = userDbRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException(
+                        "Пользователь id=%d не найден".formatted(id)));
+        log.debug("Возвращается информация о пользователе {}", user);
+        return UserMapper.toDto(user);
     }
 
     @Override
     public UserDto addUser(NewUserRequest newUserRequest) {
-        log.info("Запрос на добавление пользователя {}", newUserRequest);
+
         User user = UserMapper.toUser(newUserRequest);
-        user = userRepository.addUser(user);
+        if (userDbRepository.existsByEmail(user.getEmail())) {
+            throw new IllegalStateException("Дублирующий email '%s'".formatted(user.getEmail()));
+        }
+        user = userDbRepository.save(user);
+        log.debug("Добавлен пользователь {}", user);
         return UserMapper.toDto(user);
     }
 
     @Override
     public UserDto updateUser(long id, UpdateUserRequest updateUserRequest) {
-        log.info("Запрос на обновление данных пользователя с id={}: {}", id, updateUserRequest);
-        User user = UserMapper.toUser(updateUserRequest);
-        user.setId(id);
-        user = userRepository.updateUser(user);
+
+        var user = userDbRepository.findById(id)
+               .orElseThrow(() -> new NotFoundException(
+                       "Пользователь id=%d не найден".formatted(id)));
+        if (updateUserRequest.getName() != null) {
+            user.setName(updateUserRequest.getName());
+        }
+        final String newEmail = updateUserRequest.getEmail();
+        if (newEmail != null && !newEmail.equals(user.getEmail())) {
+            if (userDbRepository.existsByEmail(newEmail)) {
+                throw new IllegalStateException("Обновление с дублирующим email '%s'".formatted(newEmail));
+            }
+            user.setEmail(updateUserRequest.getEmail());
+        }
+        user = userDbRepository.save(user);
+        log.debug("Обновлен пользователь {}", user);
         return UserMapper.toDto(user);
     }
 
     @Override
     public Collection<UserDto> getUsers() {
-        log.info("Запрос на получение списка всех пользователей");
-        return userRepository.getAllUsers().stream()
+
+        var us = userDbRepository.findAll()
+                .stream()
                 .map(UserMapper::toDto)
-                .collect(Collectors.toList());
+                .toList();
+        log.debug("Возвращен список пользователей из {} записей", us.size());
+        return us;
     }
 
     @Override
     public void deleteUser(long id) {
-        log.info("Запрос на удаление пользователя с id={}", id);
-        userRepository.deleteUser(id);
+
+        userDbRepository.deleteById(id);
+        log.debug("Удален пользователь c id={}", id);
     }
 }
