@@ -39,7 +39,7 @@ public interface ItemService {
      * @param userId Id Пользователя
      * @return Перечень предметов
      */
-    Collection<ItemDto> getItemsOfUser(long userId);
+    Collection<ItemWithCommentsDto> getItemsOfUser(long userId);
 
     /**
      * Производит поиск предметов указанного пользователя по образцу имени или описания

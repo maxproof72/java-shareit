@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking;
 
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.dto.BookingRequestState;
+import ru.practicum.shareit.booking.constant.BookingRequestState;
 import ru.practicum.shareit.booking.dto.BookingUpdateRequest;
 import ru.practicum.shareit.booking.dto.NewBookingRequest;
 

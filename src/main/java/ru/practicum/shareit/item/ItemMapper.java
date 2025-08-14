@@ -9,7 +9,7 @@ import ru.practicum.shareit.item.dto.NewItemRequest;
 @UtilityClass
 public class ItemMapper {
 
-    public static ItemDto toDto(@NonNull Item item) {
+    public ItemDto toDto(@NonNull Item item) {
         return new ItemDto(
              item.getId(),
                 item.getName(),
@@ -18,7 +18,7 @@ public class ItemMapper {
             (item.getRequest() != null) ? item.getRequest().getId() : null);
     }
 
-    public static ItemWithCommentsDto toBookingDto(@NonNull Item item) {
+    public ItemWithCommentsDto toBookingDto(@NonNull Item item) {
         var itemWithComments = new ItemWithCommentsDto();
         itemWithComments.setId(item.getId());
         itemWithComments.setName(item.getName());
@@ -29,7 +29,7 @@ public class ItemMapper {
         return itemWithComments;
     }
 
-    public static Item toItem(@NonNull NewItemRequest itemRequest) {
+    public Item toItem(@NonNull NewItemRequest itemRequest) {
         Item item = new Item();
         item.setName(itemRequest.getName());
         item.setDescription(itemRequest.getDescription());

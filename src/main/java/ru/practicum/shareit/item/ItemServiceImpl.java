@@ -1,13 +1,13 @@
 package ru.practicum.shareit.item;
 
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.booking.BookingMapper;
+import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.BookingRepository;
 import ru.practicum.shareit.booking.BookingStatus;
+import ru.practicum.shareit.booking.dto.BookingDate;
 import ru.practicum.shareit.comments.Comment;
 import ru.practicum.shareit.comments.CommentMapper;
 import ru.practicum.shareit.comments.CommentRepository;
@@ -23,6 +23,9 @@ import ru.practicum.shareit.user.UserRepository;
 
 import java.time.LocalDateTime;
 import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -35,7 +38,7 @@ public class ItemServiceImpl implements ItemService {
     private final CommentRepository commentRepository;
 
     @Override
-    @Transactional
+    @Transactional(readOnly = true)
     public ItemWithCommentsDto getItem(long itemId, long userId) {
         Item item = itemRepository.findById(itemId)
                 .orElseThrow(() -> new NotFoundException(
@@ -43,15 +46,15 @@ public class ItemServiceImpl implements ItemService {
         ItemWithCommentsDto dto = ItemMapper.toBookingDto(item);
         if (userId == item.getOwner().getId()) {
             var now = LocalDateTime.now();
-            bookingRepository.findLastBooking(item, now)
-                    .ifPresent(b -> dto.setLastBooking(BookingMapper.toDto(b)));
-            bookingRepository.findNextBooking(item, now)
-                    .ifPresent(b -> dto.setNextBooking(BookingMapper.toDto(b)));
+            bookingRepository.findLastBookingDate(item, now)
+                    .ifPresent(dto::setLastBooking);
+            bookingRepository.findNextBookingDate(item, now)
+                    .ifPresent(dto::setNextBooking);
         }
         dto.setComments(commentRepository.findAllByItem(item).stream()
                 .map(CommentMapper::toDto)
                 .toList());
-        log.info("Возвращается информация о предмете {}", dto);
+        log.debug("Возвращается информация о предмете {}", dto);
         return dto;
     }
 
@@ -64,7 +67,8 @@ public class ItemServiceImpl implements ItemService {
                         "Пользователь id=%d не найден".formatted(newItemRequest.getOwnerId())));
         item.setOwner(user);
         item = itemRepository.save(item);
-        log.info("Добавлен предмет {}", item);
+        log.debug("Добавлен предмет (id={}:'{}', owner=({}:'{}')",
+                item.getId(), item.getName(), item.getOwner().getId(), item.getOwner().getName());
         return ItemMapper.toDto(item);
     }
 
@@ -80,15 +84,30 @@ public class ItemServiceImpl implements ItemService {
         if (updateItemRequest.getAvailable() != null)
             item.setAvailable(updateItemRequest.getAvailable());
         item = itemRepository.save(item);
-        log.info("Обновлен предмет {}", item);
+        log.debug("Обновлен предмет (id={}:'{}', owner=({}:'{}')",
+                item.getId(), item.getName(), item.getOwner().getId(), item.getOwner().getName());
         return ItemMapper.toDto(item);
     }
 
     @Override
-    public Collection<ItemDto> getItemsOfUser(long userId) {
+    public Collection<ItemWithCommentsDto> getItemsOfUser(long userId) {
+
         var it = itemRepository.findItemsByOwnerId(userId);
-        log.info("Запрос предметов пользователя с id={} вернул {} записей", userId, it.size());
-        return it.stream().map(ItemMapper::toDto).toList();
+        var now = LocalDateTime.now();
+        Map<Long, LocalDateTime> lastBookings = bookingRepository.findLastBookingDateForItems(it, now)
+                .stream()
+                .collect(Collectors.toUnmodifiableMap(BookingDate::getItem, BookingDate::getDate));
+        Map<Long, LocalDateTime> nextBookings = bookingRepository.findNextBookingDateForItems(it, now)
+                .stream()
+                .collect(Collectors.toUnmodifiableMap(BookingDate::getItem, BookingDate::getDate));
+        List<ItemWithCommentsDto> dtoList = it.stream()
+                .map(ItemMapper::toBookingDto)
+                .peek(dto -> {
+                    dto.setLastBooking(lastBookings.get(dto.getId()));
+                    dto.setNextBooking(nextBookings.get(dto.getId()));
+                }).toList();
+        log.debug("Запрос предметов пользователя с id={} вернул {} записей", userId, dtoList.size());
+        return dtoList;
     }
 
     @Override
@@ -98,7 +117,7 @@ public class ItemServiceImpl implements ItemService {
                 .orElseThrow(() -> new NotFoundException(
                         "Пользователь id=%d не найден".formatted(userId)));
         var it = itemRepository.findItemsByOwnerIdAndPattern(user, searchPattern.toLowerCase());
-        log.info("Поиск предметов {} пользователя с id={} вернул {} записей", searchPattern, userId, it.size());
+        log.debug("Поиск предметов {} пользователя с id={} вернул {} записей", searchPattern, userId, it.size());
         return it.stream().map(ItemMapper::toDto).toList();
     }
 
@@ -121,7 +140,8 @@ public class ItemServiceImpl implements ItemService {
         comment.setItem(itemRepository.findById(request.getItemId()).orElse(null));
         comment.setAuthor(userRepository.findById(request.getUserId()).orElse(null));
         comment = commentRepository.save(comment);
-        log.info("Добавлен комментарий {}", comment);
+        log.debug("Добавлен комментарий (id={}, item=({}:'{}')",
+                comment.getId(), comment.getItem().getId(), comment.getItem().getName());
         return CommentMapper.toDto(comment);
     }
 }

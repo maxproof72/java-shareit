@@ -3,9 +3,11 @@ package ru.practicum.shareit.booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
+import ru.practicum.shareit.booking.dto.BookingDate;
 import ru.practicum.shareit.item.Item;
 
 import java.time.LocalDateTime;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
@@ -106,12 +108,24 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
      * @param date Текущая дата
      * @return Опцион бронирования
      */
-    @Query("select b from bookings as b " +
-            "where b.item = :item and " +
-            "b.start <= :date " +
-            "order by b.start desc " +
-            "limit 1")
-    Optional<Booking> findLastBooking(Item item, LocalDateTime date);
+    @Query("select max(b.start) from bookings as b where b.item = :item and b.start <= :date")
+    Optional<LocalDateTime> findLastBookingDate(Item item, LocalDateTime date);
+
+    /**
+     * Возвращает перечень сочетаний <code>booking.item.id</code> и <code>booking.start></code>,
+     * где значение сочетания представляет собой дату последнего бронирования,
+     * для заданного набора идентификаторов предметов
+     * @param list Набор идентификаторов предметов
+     * @param date Текущая дата
+     * @return Перечень сочетаний
+     */
+    @Query("""
+            select b.item.id as item, max(b.start) as date
+            from bookings as b
+            where b.item in :list and b.start <= :date
+            group by b.item
+            """)
+    List<BookingDate> findLastBookingDateForItems(Collection<Item> list, LocalDateTime date);
 
     /**
      * Возвращает ближайшее бронирование указанного предмета
@@ -119,12 +133,24 @@ public interface BookingRepository extends JpaRepository<Booking,Long> {
      * @param date Текущая дата
      * @return Опцион бронирования
      */
-    @Query("select b from bookings as b " +
-            "where b.item = :item and " +
-            "b.start > :date " +
-            "order by b.start asc " +
-            "limit 1")
-    Optional<Booking> findNextBooking(Item item, LocalDateTime date);
+    @Query("select min(b.start) from bookings as b where b.item = :item and b.start > :date")
+    Optional<LocalDateTime> findNextBookingDate(Item item, LocalDateTime date);
+
+    /**
+     * Возвращает перечень сочетаний <code>booking.item.id</code> и <code>booking.start></code>,
+     * где значение сочетания представляет собой дату ближайшего бронирования,
+     * для заданного набора идентификаторов предметов
+     * @param list Набор идентификаторов предметов
+     * @param date Текущая дата
+     * @return Перечень сочетаний
+     */
+    @Query("""
+            select b.item.id as item, min(b.start) as date
+            from bookings as b
+            where b.item in :list and b.start > :date
+            group by b.item
+            """)
+    List<BookingDate> findNextBookingDateForItems(Collection<Item> list, LocalDateTime date);
 
     /**
      * Проверяет, существует ли бронирование указанного предмета,

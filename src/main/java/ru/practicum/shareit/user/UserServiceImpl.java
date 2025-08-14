@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
         var user = userDbRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException(
                         "Пользователь id=%d не найден".formatted(id)));
-        log.info("Возвращается информация о пользователе {}", user);
+        log.debug("Возвращается информация о пользователе {}", user);
         return UserMapper.toDto(user);
     }
 
@@ -35,7 +35,7 @@ public class UserServiceImpl implements UserService {
             throw new IllegalStateException("Дублирующий email '%s'".formatted(user.getEmail()));
         }
         user = userDbRepository.save(user);
-        log.info("Добавлен пользователь {}", user);
+        log.debug("Добавлен пользователь {}", user);
         return UserMapper.toDto(user);
     }
 
@@ -56,23 +56,25 @@ public class UserServiceImpl implements UserService {
             user.setEmail(updateUserRequest.getEmail());
         }
         user = userDbRepository.save(user);
-        log.info("Обновлен пользователь {}", user);
+        log.debug("Обновлен пользователь {}", user);
         return UserMapper.toDto(user);
     }
 
     @Override
     public Collection<UserDto> getUsers() {
+
         var us = userDbRepository.findAll()
                 .stream()
                 .map(UserMapper::toDto)
                 .toList();
-        log.info("Возвращен список пользователей из {} записей", us.size());
+        log.debug("Возвращен список пользователей из {} записей", us.size());
         return us;
     }
 
     @Override
     public void deleteUser(long id) {
+
         userDbRepository.deleteById(id);
-        log.info("Удален пользователь c id={}", id);
+        log.debug("Удален пользователь c id={}", id);
     }
 }

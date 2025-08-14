@@ -1,16 +1,16 @@
 package ru.practicum.shareit.booking;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.user.User;
 
 import java.time.LocalDateTime;
 
 
-@Data
+@Getter
+@Setter
+@ToString
 @Entity(name = "bookings")
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,9 +26,11 @@ public class Booking {
     LocalDateTime end;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     Item item;
 
     @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     User booker;
 
     @Enumerated(EnumType.STRING)
