@@ -1,19 +1,30 @@
 package ru.practicum.shareit.item;
 
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import jakarta.persistence.*;
+import lombok.*;
 import ru.practicum.shareit.request.ItemRequest;
 import ru.practicum.shareit.user.User;
 
 
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
+@Entity(name = "items")
 public class Item {
 
-    private long id;
+    @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
     private String name;
     private String description;
-    private Boolean available;
+    private boolean available;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private User owner;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @ToString.Exclude
     private ItemRequest request;
 }
