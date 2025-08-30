@@ -3,6 +3,7 @@ package ru.practicum.shareit.booking;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.NewBookingDto;
 import ru.practicum.shareit.booking.dto.UpdateBookingDto;
+import ru.practicum.shareit.exception.ForbiddenException;
 import ru.practicum.shareit.item.Item;
 import ru.practicum.shareit.item.ItemRepository;
 import ru.practicum.shareit.user.User;
@@ -138,6 +140,11 @@ public class BookingServiceImplTest {
         assertThat(bookingQuery.getEnd(), equalTo(futureBooking.getEnd()));
         assertThat(bookingQuery.getBooker().getId(), equalTo(booker.getId()));
         assertThat(bookingQuery.getStatus(), equalTo(BookingStatus.APPROVED));
+
+        Assertions.assertThrows(ForbiddenException.class, () ->
+                bookingService.updateBookingStatus(new UpdateBookingDto(
+                        booker.getId(), futureBooking.getId(), false
+                )));
     }
 
     @Test

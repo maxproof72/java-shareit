@@ -4,10 +4,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.TypedQuery;
 import lombok.RequiredArgsConstructor;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.transaction.annotation.Transactional;
+import ru.practicum.shareit.exception.NotFoundException;
 import ru.practicum.shareit.user.dto.NewUserDto;
 import ru.practicum.shareit.user.dto.UserDto;
 
@@ -46,6 +48,9 @@ public class UserServiceImplTest {
         assertThat(user.getId(), notNullValue());
         assertThat(user.getName(), equalTo(newUserDto.getName()));
         assertThat(user.getEmail(), equalTo(newUserDto.getEmail()));
+
+        Assertions.assertThrows(IllegalStateException.class, () ->
+                userService.addUser(newUserDto));
     }
 
     @Test
@@ -57,6 +62,9 @@ public class UserServiceImplTest {
         assertThat(dto.getId(), equalTo(user.getId()));
         assertThat(dto.getName(), equalTo(user.getName()));
         assertThat(dto.getEmail(), equalTo(user.getEmail()));
+
+        Assertions.assertThrows(NotFoundException.class,
+                () -> userService.getUser(user.getId() + 1));
     }
 
     @Test
@@ -69,6 +77,10 @@ public class UserServiceImplTest {
         assertThat(dto.getId(), equalTo(user.getId()));
         assertThat(dto.getName(), equalTo(newUserDto.getName()));
         assertThat(dto.getEmail(), equalTo(newUserDto.getEmail()));
+
+
+        Assertions.assertThrows(NotFoundException.class,
+                () -> userService.updateUser(user.getId() + 1, newUserDto));
     }
 
     @Test
@@ -95,11 +107,8 @@ public class UserServiceImplTest {
         long userId = userRepository.save(new User(null, "user1", "user1@email.com")).getId();
         userService.deleteUser(userId);
         TypedQuery<User> query = em.createQuery("SELECT u FROM users u WHERE u.id = :id", User.class);
-        try {
-            User user = query.setParameter("id", userId).getSingleResult();
-            assertThat(user, nullValue());
-        } catch (NoResultException e) {
-            assertThat(e, instanceOf(NoResultException.class));
-        }
+        Assertions.assertThrows(NoResultException.class, () ->
+            query.setParameter("id", userId).getSingleResult());
+
     }
 }

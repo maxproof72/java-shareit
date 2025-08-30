@@ -17,13 +17,6 @@ public class ErrorHandler {
         return new ErrorResponse(e.getMessage());
     }
 
-    @ExceptionHandler(DuplicatedDataException.class)
-    @ResponseStatus(HttpStatus.CONFLICT)   // 409
-    public ErrorResponse handleDuplicatedDataException(DuplicatedDataException e) {
-        log.warn(e.getMessage());
-        return new ErrorResponse(e.getMessage());
-    }
-
     @ExceptionHandler(ForbiddenException.class)
     @ResponseStatus(HttpStatus.FORBIDDEN)   // 403
     public ErrorResponse handleForbiddenException(ForbiddenException e) {
