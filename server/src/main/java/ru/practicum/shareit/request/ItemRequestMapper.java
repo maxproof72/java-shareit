@@ -25,7 +25,7 @@ public class ItemRequestMapper {
         return itemRequestDto;
     }
 
-    public ItemRequestWithAnswersDto toDtoWithAnswers (ItemRequest itemRequest) {
+    public ItemRequestWithAnswersDto toDtoWithAnswers(ItemRequest itemRequest) {
 
         return new ItemRequestWithAnswersDto(
                 itemRequest.getId(),
